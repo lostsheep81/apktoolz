@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Sample pre-commit hook for the Self-Improvement Framework
+#
+# To install:
+# 1. cd /path/to/your/repo/.git/hooks
+# 2. ln -s ../../hooks/pre-commit pre-commit
+# 3. chmod +x pre-commit
+#
+# This hook simply reminds the developer to consider adding a journal entry.
+# More advanced versions could analyze changed files, etc.
+
+# Check if the journal file itself is being committed - if so, skip the prompt
+if git diff --cached --name-only | grep -q "SELF_PROMPT_JOURNAL.md"; then
+    exit 0
+fi
+
+# Check for significant changes (e.g., more than 5 lines changed excluding whitespace)
+# This is a basic heuristic, adjust as needed.
+lines_changed=$(git diff --cached --ignore-space-change --ignore-blank-lines --numstat | awk '{s+=$1+$2} END {print s}')
+
+# Only prompt if changes seem significant (e.g., > 10 lines)
+if [ "$lines_changed" -gt 10 ]; then
+    echo "----------------------------------------------------"
+    echo " Self-Improvement Reminder:"
+    echo " Consider reflecting on these changes."
+    echo " Did any prompts from SELF_PROMPT.md apply?"
+    echo " If so, add an entry to SELF_PROMPT_JOURNAL.md"
+    echo " (You can use './scripts/prompt_helper.sh journal')"
+    echo "----------------------------------------------------"
+    # Optionally, ask for confirmation to proceed (uncomment below)
+    # read -p "Press Enter to continue commit, or Ctrl+C to abort and journal..."
+fi
+
+# Exit 0 to allow the commit
+exit 0

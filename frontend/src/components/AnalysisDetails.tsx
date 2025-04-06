@@ -208,9 +208,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#1F2937',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
     marginBottom: 4,
   },
   suggestionText: {
@@ -230,9 +227,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     flex: 1,
-    fontSize: 14,{aiAnalysis?.detectedPatterns && aiAnalysis.detectedPatterns.length > 0 && (
-            <AISuggestion suggestion={aiAnalysis.detectedPatterns[0]} />
-          )}
+    fontSize: 14,
     color: '#991B1B',
   },
 });
