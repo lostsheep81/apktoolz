@@ -1,0 +1,17 @@
+# Worker Dockerfile
+FROM node:18
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and install dependencies
+COPY package.json ./
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose no ports as this is a worker
+
+# Start the worker
+CMD ["node", "src/worker/worker.js"]

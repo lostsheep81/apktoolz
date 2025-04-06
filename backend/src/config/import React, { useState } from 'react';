@@ -1,0 +1,38 @@
+// Configuration file for application settings
+// This should not contain React components - the misplaced component has been moved to frontend
+
+module.exports = {
+  // Application settings
+  app: {
+    port: process.env.PORT || 3000,
+    environment: process.env.NODE_ENV || 'development',
+  },
+  
+  // Database configuration
+  database: {
+    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/apktoolz',
+    options: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+  },
+  
+  // Redis configuration for BullMQ
+  redis: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+  },
+  
+  // JWT configuration
+  jwt: {
+    secret: process.env.JWT_SECRET || 'development-secret-key',
+    expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+  },
+  
+  // File storage configuration
+  storage: {
+    uploadDir: process.env.UPLOAD_DIR || 'uploads',
+    tempDir: process.env.TEMP_DIR || 'temp',
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '100000000'), // 100MB
+  }
+};
