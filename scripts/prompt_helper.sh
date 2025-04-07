@@ -39,7 +39,7 @@ add_journal_entry() {
     while true; do
         echo -n "Effectiveness (1-5): "
         read effectiveness
-        if [[ "$effectiveness" =~ ^[1-5]$ ]]; then
+        if [[ -n "$effectiveness" && "$effectiveness" =~ ^[1-5]$ ]]; then
             break
         else
             echo "Please enter a number between 1 and 5."

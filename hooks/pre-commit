@@ -17,7 +17,7 @@ fi
 
 # Check for significant changes (e.g., more than 5 lines changed excluding whitespace)
 # This is a basic heuristic, adjust as needed.
-lines_changed=$(git diff --cached --ignore-space-change --ignore-blank-lines --numstat | awk '{s+=$1+$2} END {print s}')
+lines_changed=$(git diff --cached --ignore-space-change --ignore-blank-lines --numstat | awk '{s+=$1+$2} END {print s+0}')
 
 # Only prompt if changes seem significant (e.g., > 10 lines)
 if [ "$lines_changed" -gt 10 ]; then
