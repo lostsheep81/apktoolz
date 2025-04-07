@@ -2,21 +2,20 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../../core/models/User.model');
 const { sendEmail } = require('../../core/services/email.service');
+const { generateToken, generateRefreshToken } = require('../../core/utils/tokenUtils');
+const { handleError } = require('../../core/utils/errorHandler');
 
 // User registration with enhanced validation
 exports.register = async (req, res) => {
   try {
     const { username, email, password, name } = req.body;
-    
+
     // Check if user exists
     if (await User.findOne({ $or: [{ email }, { username }] })) {
       return res.status(400).json({ message: 'Email or username already exists' });
     }
 
     const user = new User({ username, email, password, name });
-    await user.save();
-
-    // Generate verification token
     const verificationToken = user.generateVerificationToken();
     await user.save();
 
@@ -33,14 +32,11 @@ exports.register = async (req, res) => {
       message: 'User registered successfully. Please check your email for verification.' 
     });
   } catch (err) {
-    res.status(400).json({ 
-      message: 'Error registering user', 
-      error: err.message 
-    });
+    handleError(res, err, 'Error registering user');
   }
 };
 
-// Enhanced login with refresh token management
+// Enhanced login with reusable token generation
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -55,24 +51,14 @@ exports.login = async (req, res) => {
     }
 
     // Generate tokens
-    const token = jwt.sign(
-      { id: user._id }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
-    );
-
-    const refreshToken = jwt.sign(
-      { id: user._id }, 
-      process.env.JWT_REFRESH_SECRET, 
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
-    );
+    const token = generateToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
     // Store refresh token
     user.refreshTokens.push({
       token: refreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
     });
-
     user.lastLogin = new Date();
     await user.save();
 
@@ -87,10 +73,7 @@ exports.login = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ 
-      message: 'Error logging in', 
-      error: err.message 
-    });
+    handleError(res, err, 'Error logging in');
   }
 };
 
