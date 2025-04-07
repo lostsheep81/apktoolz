@@ -7,7 +7,11 @@
     "start": "node src/api/app.js",
     "test": "jest --config jest.config.js"
   },
+  "type": "module",
   "dependencies": {
+    "@azure-rest/ai-inference": "latest",
+    "@azure/core-auth": "latest", 
+    "@azure/core-sse": "latest",
     "@react-navigation/native": "^7.1.5",
     "@react-navigation/native-stack": "^7.3.9",
     "bullmq": "^5.47.1",
