@@ -5,7 +5,7 @@
   "main": "src/api/app.js",
   "scripts": {
     "start": "node src/api/app.js",
-    "test": "jest --config jest.config.js"
+    "test": "jest --config jest.config.cjs"
   },
   "type": "module",
   "dependencies": {

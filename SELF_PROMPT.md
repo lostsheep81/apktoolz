@@ -80,7 +80,7 @@ This document is intended to foster a culture of continuous improvement. Use the
   - Are there recurring issues flagged in TROUBLESHOOTING.md that need a more permanent fix?
   - Are changes to the testing setup or mock behavior regularly reviewed and refined?
   - What new practices or tools can be evaluated to improve the testing and development process?
-  - _Implementation_: Track recurring issues in an "Technical Debt" backlog and allocate time for resolution.
+  - _Implementation_: Track recurring issues in a "Technical Debt" backlog and allocate time for resolution.
 
 - **Innovation and Adaptation**
   - What emerging trends or tools in the testing ecosystem can be adopted to enhance efficiency?

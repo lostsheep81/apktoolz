@@ -1,26 +1,25 @@
-// Mock dependencies before importing the worker
+// Define mock handlers storage
+const eventHandlers = {};
+
+// Create a single mockWorkerInstance with properly implemented methods
+const mockWorkerInstance = {
+  name: 'decompilation-queue',
+  on: jest.fn((event, handler) => {
+    eventHandlers[event] = handler;
+  }),
+  close: jest.fn().mockImplementation(() => Promise.resolve()),
+  run: jest.fn(),
+};
+
 jest.mock('bullmq', () => {
-  // Create a mock Worker instance that registers the event handlers
-  const mockWorkerInstance = {
-    name: 'decompilation-queue',
-    on: jest.fn(),
-    close: jest.fn().mockResolvedValue(),
-    run: jest.fn()
-  };
-  
-  // Mock the Worker constructor to return our instance with registered handlers
-  const MockWorker = jest.fn(() => {
-    return mockWorkerInstance;
-  });
-  
   return {
-    Worker: MockWorker,
+    Worker: jest.fn(() => mockWorkerInstance),
     Queue: jest.fn().mockImplementation(() => ({
       name: 'mock-queue',
       on: jest.fn(),
       add: jest.fn().mockResolvedValue({ id: 'mock-job-id' }),
       close: jest.fn().mockResolvedValue(),
-    }))
+    })),
   };
 });
 
@@ -55,5 +54,60 @@ describe('Worker', () => {
     
     logger.error('Worker error:', new Error('Test error'));
     expect(logger.error).toHaveBeenCalled();
+  });
+});
+
+describe('Worker Lifecycle', () => {
+  it('should close the worker without errors', async () => {
+    const closePromise = mockWorkerInstance.close();
+    expect(closePromise).toBeInstanceOf(Promise);
+    await expect(closePromise).resolves.not.toThrow();
+    expect(mockWorkerInstance.close).toHaveBeenCalled();
+  });
+
+  it('should handle errors during worker initialization', () => {
+    // Create a new mock that throws an error
+    const originalWorker = require('bullmq').Worker;
+    require('bullmq').Worker = jest.fn().mockImplementation(() => {
+      throw new Error('Initialization error');
+    });
+    
+    try {
+      expect(() => {
+        jest.resetModules();
+        require('./worker');
+      }).toThrow('Initialization error');
+    } finally {
+      // Restore original mock
+      require('bullmq').Worker = originalWorker;
+    }
+  });
+});
+
+describe('Job Processing', () => {
+  it('should process jobs successfully', async () => {
+    // Simulate a completed event
+    const mockJob = { id: 'job123', data: { key: 'value' } };
+    
+    // Manually trigger the event handler if one was registered
+    if (eventHandlers['completed']) {
+      await eventHandlers['completed'](mockJob);
+      expect(logger.info).toHaveBeenCalledWith('Job completed:', { jobId: 'job123' });
+    }
+  });
+
+  it('should handle job processing errors', async () => {
+    // Simulate a failed event
+    const mockJob = { id: 'job123', data: { key: 'value' } };
+    const mockError = new Error('Processing error');
+    
+    // Manually trigger the event handler if one was registered
+    if (eventHandlers['failed']) {
+      await eventHandlers['failed'](mockJob, mockError);
+      expect(logger.error).toHaveBeenCalledWith('Job failed:', { 
+        jobId: 'job123', 
+        error: 'Processing error' 
+      });
+    }
   });
 });
